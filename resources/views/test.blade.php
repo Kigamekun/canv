@@ -10,7 +10,7 @@
      <script>
          var head = document.getElementsByTagName('HEAD')[0];
          var css = @json($data_css);
-         var js = @json($data_js);
+        
          var z = @json($host);
          var id = @json($data->resource_id);
          for (let x = 0; x < css.length; x++) {

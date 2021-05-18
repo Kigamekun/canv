@@ -13,12 +13,10 @@ use App\Http\Controllers\HomeController;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
 
 Auth::routes();
-Route::get('/home', [HomeController::class, 'home'])->name('home');
+Route::get('/', [HomeController::class, 'home'])->name('home');
+Route::get('/invitation', [HomeController::class, 'invitation'])->name('invitation');
 Route::get('/design/{design_id}', [HomeController::class, 'design'])->name('design');
 Route::get('/add_template', [HomeController::class, 'add_template'])->name('add_template');
 Route::get('/edit_template/{data_id}', [HomeController::class, 'client_edit'])->name('edit_template');

@@ -7,6 +7,7 @@ use File;
 use App\Models\html_data;
 use App\Models\css_data;
 use App\Models\view_client;
+use Illuminate\Support\Facades\Hash;
 use App\Models\resource;
 use App\Models\js_data;
 use Illuminate\Support\Facades\Auth;
@@ -29,14 +30,11 @@ class HomeController extends Controller
      */
     public function design($design_id,Request $request)
     {
-        
         $data = html_data::where('resource_id',$design_id)->first();
         $data_css = css_data::where('resource_id',$design_id)->first();
         $css = explode(',',$data_css->file);
         // $data_js = js_data::where('resource_id',$design_id)->first();
         // $js = explode(',',$data_js->file);
-        
-        
         return view('test',["data"=>$data,'data_css'=>$css,'host'=>$request->getSchemeAndHttpHost()]);
 
 
@@ -148,7 +146,7 @@ class HomeController extends Controller
                 'file'=>join(",",$data2)
             ]);
 
-            return redirect('/');
+            return redirect('/home')->with('message');
     }
 
     public function client_edit(Request $request,$data_id)
@@ -172,26 +170,77 @@ $data_cl = view_client::create([
         $css = explode(',',$data_css->file);
         // dd(public_path().'/');
         // dd($data_cl);
-        return view('edit_template',["data"=>$data_cl,'data_css'=>$css,'host'=>$request->getSchemeAndHttpHost()]);
+        $hashed = Hash::make(Auth::id(), [
+            'rounds' => 12,
+        ]);
+        
+        return view('edit_template',["data"=>$data_cl,"hashed"=>$hashed,'data_css'=>$css,'host'=>$request->getSchemeAndHttpHost()]);
 
         
     }
 
     public function my_template(Request $request)
     {
-        try {
+        if(is_null(view_client::where('user_id',Auth::id())->first())) {
+            
+
+            return view('template_not_exists');
+
+
+        } else {
+
             $data_cl = view_client::where('user_id',Auth::id())->first();
             $data_css = css_data::where('resource_id',$data_cl->resource_id)->first();
             $css = explode(',',$data_css->file);
+            $hashed = Hash::make(Auth::id(), [
+                'rounds' => 12,
+            ]);
+                
 
-        return view('edit_template',["data"=>$data_cl,'data_css'=>$css,'host'=>$request->getSchemeAndHttpHost()]);
+        return view('edit_template',["data"=>$data_cl,'data_css'=>$css,'hashed'=>$hashed,'host'=>$request->getSchemeAndHttpHost()]);
 
-
-
-
-        } catch (Exception $th) {
-            return view('template_not_exists');
         }
+
+    }
+    public function invitation(Request $request)
+    
+    {
+        $x = 0;
+        $w = true;
+        while ($w) {
+            if (Hash::check($x, $request->x)){
+                $id = $x;
+                $w = false;
+                break;
+            }
+            
+            $x += 1;
+
+        }
+        
+        // dd($x);
+        
+        if(is_null(view_client::where('user_id',$id)->first())) {
+            
+
+            return view('template_not_exists');
+
+
+        } else {
+
+            $data_cl = view_client::where('user_id',$id)->first();
+            $data_css = css_data::where('resource_id',$data_cl->resource_id)->first();
+            $css = explode(',',$data_css->file);
+
+        // $data_js = js_data::where('resource_id',$design_id)->first();
+        // $js = explode(',',$data_js->file);
+        return view('invitation',["data"=>$data_cl,'data_css'=>$css,'host'=>$request->getSchemeAndHttpHost()]);
+
+                
+
+
+        }
+
     }
 
 
